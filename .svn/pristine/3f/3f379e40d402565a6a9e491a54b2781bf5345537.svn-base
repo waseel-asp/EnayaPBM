@@ -1,0 +1,190 @@
+package com.enayapbm.business;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
+import com.enayapbm.medimpact.delivery.PbmMedimpactDelivery;
+import com.enayapbm.medimpact.model.DrugList;
+import com.enayapbm.medimpact.model.MedImpactRequest;
+import com.enayapbm.medimpact.model.MedImpactResponse;
+
+@RequestScoped
+public class PbmDataOperations {
+
+	private InputStream input;
+	private String fileName;
+	private FileType uploadedFileType;
+	List<EnayaPbmData> enayaPbmdataList;
+	private List<PbmDataFeedbackMessage> feedbackList;
+
+	@Inject
+	@Chosen
+	private com.enayapbm.business.FileReader<EnayaPbmData> reader;
+
+	@Inject
+	private PbmMedimpactDelivery pbmSubmission;
+
+	private final String uploadFailed = "PBMDataUploadFailed";
+
+	public enum FileType {
+		CSV, XLS, XLSX
+	}
+
+	public List<PbmDataFeedbackMessage> handleMultipleFileUpload(String directoryPath) throws FileNotFoundException {
+		File pbmDataDirectory = new File(directoryPath);
+		System.out.println(pbmDataDirectory.getAbsolutePath());
+		File[] fileList = pbmDataDirectory.listFiles();
+		feedbackList = new ArrayList<PbmDataFeedbackMessage>();
+		if (fileList.length == 0) {
+			return null;
+		}
+		for (File file : fileList) {
+			input = new FileInputStream(file);
+			fileName = file.getName();
+			try {
+				if (enayaPbmdataList != null) {
+					enayaPbmdataList = null;
+				}
+				enayaPbmdataList = processFile(fileName, input);
+				// String returnedCode = processUpload(enayaPbmdataList,
+				// payerId);
+				/*
+				 * if (returnedCode != null) { feedbackList.add(new
+				 * PbmDataFeedbackMessage(file.getName(),
+				 * Messages.NO_ASSOCIATION_FOUND)); continue; }
+				 */
+				List<MedImpactRequest> medImpactList = processEnayaPBMRequest(enayaPbmdataList);
+				submitPbmNewRequestList(medImpactList);
+
+				feedbackList.add(new PbmDataFeedbackMessage(file.getName(), Messages.PRICELIST_UPLOAD_SUCCESS));
+				file.delete();
+			} catch (Exception e) {
+				e.printStackTrace();
+				feedbackList.add(new PbmDataFeedbackMessage(file.getName(), Messages.PRICELIST_UPLOAD_FAILED));
+			}
+		}
+
+		return feedbackList;
+	}
+
+	private void submitPbmNewRequestList(List<MedImpactRequest> medImpactList) {
+		List<MedImpactResponse> medImpactResponseList = new ArrayList<MedImpactResponse>();
+		if (medImpactList != null && medImpactList.size() > 0) {
+			for (MedImpactRequest pbmRequest : medImpactList) {
+				MedImpactResponse pbmResponse = pbmSubmission.submitNewRequest(pbmRequest);
+				medImpactResponseList.add(pbmResponse);
+				//TODO
+			}
+		}
+
+	}
+
+	public List<MedImpactRequest> processEnayaPBMRequest(List<EnayaPbmData> enayaPbmDataList) {
+
+		List<MedImpactRequest> midImpactRequestList = new ArrayList<MedImpactRequest>();
+
+		Map<String, List<EnayaPbmData>> groupByRequestIdMap = enayaPbmDataList.stream()
+				.collect(Collectors.groupingBy(EnayaPbmData::getRequestId));
+
+		groupByRequestIdMap.forEach((key, value) -> {
+			System.out.println("Key : " + key + " Value : " + value);
+		});
+
+		System.out.println(midImpactRequestList);
+		Set<String> keys = groupByRequestIdMap.keySet();
+		// Collection<List<EnayaPbmData>> values = groupByRequestIdMap.values();
+		for (String key : keys) {
+			MedImpactRequest medImpactReq = new MedImpactRequest();
+			List<EnayaPbmData> value = groupByRequestIdMap.get(key);
+			int i = 0;
+			List<String> icdCodes = new ArrayList<String>();
+			List<DrugList> services = new ArrayList<DrugList>();
+			for (EnayaPbmData enayaPbmData : value) {
+				if (i == 0) {
+					medImpactReq.setRequestId(enayaPbmData.getRequestId());
+					medImpactReq.setPayerId(enayaPbmData.getPayerId());
+					medImpactReq.setPrescriberId(enayaPbmData.getPrescriberId());
+					medImpactReq.setMemberId(enayaPbmData.getMemberId());
+					medImpactReq.setMemberGender(enayaPbmData.getGender().name());
+					medImpactReq.setMemberWeight(null);
+					medImpactReq.setPharmacyId(enayaPbmData.getProviderId());
+					medImpactReq.setDateOfService(enayaPbmData.getDateOfService().toString());
+					medImpactReq.setDateOfBirth(enayaPbmData.getDateOfBirth().toString());
+					i++;
+				} else {
+					DrugList drug = new DrugList();
+					icdCodes.add(enayaPbmData.getDiagnosisCode());
+					drug.setNdcDrugCode(enayaPbmData.getSfdaCode());
+					drug.setAmount(enayaPbmData.getAmount().toString());
+					drug.setDispensedQuantity(enayaPbmData.getDispensedQuantity());
+					drug.setDaysOfSupply(enayaPbmData.getDaysOfSupply());
+					services.add(drug);
+
+				}
+
+			}
+			medImpactReq.setIcdCodes(new ArrayList<String>(icdCodes));
+			medImpactReq.setDrugList(new ArrayList<DrugList>(services));
+			icdCodes.clear();
+			services.clear();
+			midImpactRequestList.add(medImpactReq);
+
+		}
+
+		return midImpactRequestList;
+
+	}
+
+	public List<EnayaPbmData> processFile(String fileName, InputStream in) {
+		try {
+			this.uploadedFileType = getFileType(fileName);
+			enayaPbmdataList = reader.readFile(in);
+			// clean();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return enayaPbmdataList;
+	}
+
+	@Produces
+	@Chosen
+	@RequestScoped
+	public com.enayapbm.business.FileReader<EnayaPbmData> chooseFileReader(
+			@FileReaderQualifier(FileType.XLS) XLSPbmReader xlsReader,
+			@FileReaderQualifier(FileType.XLSX) XLSXPbmReader xlsxReader) throws Exception {
+		switch (uploadedFileType) {
+		/*
+		 * case CSV: return csvReader;
+		 */
+		case XLS:
+			return xlsReader;
+		case XLSX:
+			return xlsxReader;
+		default:
+			throw new Exception("FileType not supported!");
+		}
+	}
+
+	private FileType getFileType(String fileName) throws Exception {
+		/*
+		 * if (fileName.toUpperCase().endsWith("CSV")) { return FileType.CSV; }
+		 * else
+		 */ if (fileName.toUpperCase().endsWith("XLS")) {
+			return FileType.XLS;
+		} else if (fileName.toUpperCase().endsWith("XLSX")) {
+			return FileType.XLSX;
+		} else
+			throw new Exception("FileType not supported!");
+	}
+}

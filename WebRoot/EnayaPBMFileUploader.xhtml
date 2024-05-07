@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui">
+
+
+<h:head></h:head>
+<h:body>
+
+	<h:form prependId="false">
+
+
+		<p:growl id="growl" showDetail="true" sticky="true" />
+		<div style="width: 55%; padding: 2%;">
+			<p:outputLabel value="Directory Path*"
+				style="width:10%;padding-right:2.5%;" />
+			<p:inputText value="#{uploadEnayaPbmDataBean.directoryPath}"
+				placeholder="Example C:/home/Desktop/Price_lists" required="true"
+				style="width:37%;" requiredMessage="Please Enter Directory Path" />
+				
+				<p:commandButton id="uploadBtn" value="Upload PBM Data"
+				actionListener="#{uploadEnayaPbmDataBean.uploadPBMdata()}"
+				title="#{UploadEnayaPBMData}" update="growl"
+				style="margin-left: 0%;background-color:#2f80e7;color:#FFFFFF;"><!--errors-panel  -->
+			</p:commandButton>
+		</div>
+		
+		
+		<!-- <h:panelGrid id="errors-panel" style="width:50%;padding:1%;"
+			columns="1">
+			<h3>Uploading Pricelists Status:</h3>
+			<p:dataTable id="errors-table" var="feedback"
+				value="#{uploadMultiplePriceListBean.feedbackList}">
+				<p:column headerText="File Name">
+					<h:outputText value="#{feedback.fileName}" />
+				</p:column>
+				<p:column headerText="Feedback Message">
+					<h:outputText value="#{feedback.feedbackMessage}" />
+				</p:column>
+			</p:dataTable>
+		</h:panelGrid> -->
+
+
+
+	</h:form>
+
+</h:body>
+</html>

@@ -1,0 +1,170 @@
+package com.enayapbm.medimpact.model;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "requestId", "payerId", "prescriberId", "memberId", "memberGender", "memberWeight", "pharmacyId",
+		"dateOfService", "dateOfBirth", "icdCodes", "drugList" })
+public class MedImpactRequest {
+
+	@JsonProperty("requestId")
+	private String requestId;
+	@JsonProperty("payerId")
+	private String payerId;
+	@JsonProperty("prescriberId")
+	private String prescriberId;
+	@JsonProperty("memberId")
+	private String memberId;
+	@JsonProperty("memberGender")
+	private String memberGender;
+	@JsonProperty("memberWeight")
+	private Integer memberWeight;
+	@JsonProperty("pharmacyId")
+	private String pharmacyId;
+	@JsonProperty("dateOfService")
+	private String dateOfService;
+	@JsonProperty("dateOfBirth")
+	private String dateOfBirth;
+	@JsonProperty("icdCodes")
+	private List<String> icdCodes = null;
+	@JsonProperty("drugList")
+	public List<DrugList> drugList = null;
+
+	public MedImpactRequest() {
+		
+		
+	}
+	
+
+	public MedImpactRequest(MedImpactRequest pbmRequest) {
+		
+		this.requestId = pbmRequest.requestId;
+		this.payerId = pbmRequest.payerId;
+		this.prescriberId = pbmRequest.prescriberId;
+		this.memberId = pbmRequest.memberId;
+		this.memberGender = pbmRequest.memberGender;
+		this.memberWeight = pbmRequest.memberWeight;
+		this.pharmacyId = pbmRequest.pharmacyId;
+		this.dateOfService = pbmRequest.dateOfService;
+		this.dateOfBirth = pbmRequest.dateOfBirth;
+		this.icdCodes = pbmRequest.icdCodes;
+		this.drugList = pbmRequest.drugList;
+		
+	}
+
+	@JsonProperty("requestId")
+	public String getRequestId() {
+		return requestId;
+	}
+
+	@JsonProperty("requestId")
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
+
+	@JsonProperty("payerId")
+	public String getPayerId() {
+		return payerId;
+	}
+
+	@JsonProperty("payerId")
+	public void setPayerId(String payerId) {
+		this.payerId = payerId;
+	}
+
+	@JsonProperty("prescriberId")
+	public String getPrescriberId() {
+		return prescriberId;
+	}
+
+	@JsonProperty("prescriberId")
+	public void setPrescriberId(String prescriberId) {
+		this.prescriberId = prescriberId;
+	}
+
+	@JsonProperty("memberId")
+	public String getMemberId() {
+		return memberId;
+	}
+
+	@JsonProperty("memberId")
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	@JsonProperty("memberGender")
+	public String getMemberGender() {
+		return memberGender;
+	}
+
+	@JsonProperty("memberGender")
+	public void setMemberGender(String memberGender) {
+		this.memberGender = memberGender;
+	}
+
+	@JsonProperty("memberWeight")
+	public Integer getMemberWeight() {
+		return memberWeight;
+	}
+
+	@JsonProperty("memberWeight")
+	public void setMemberWeight(Integer memberWeight) {
+		this.memberWeight = memberWeight;
+	}
+
+	@JsonProperty("pharmacyId")
+	public String getPharmacyId() {
+		return pharmacyId;
+	}
+
+	@JsonProperty("pharmacyId")
+	public void setPharmacyId(String pharmacyId) {
+		this.pharmacyId = pharmacyId;
+	}
+
+	@JsonProperty("dateOfService")
+	public String getDateOfService() {
+		return dateOfService;
+	}
+
+	@JsonProperty("dateOfService")
+	public void setDateOfService(String dateOfService) {
+		this.dateOfService = dateOfService;
+	}
+
+	@JsonProperty("dateOfBirth")
+	public String getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	@JsonProperty("dateOfBirth")
+	public void setDateOfBirth(String dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	@JsonProperty("icdCodes")
+	public List<String> getIcdCodes() {
+		return icdCodes;
+	}
+
+	@JsonProperty("icdCodes")
+	public void setIcdCodes(List<String> icdCodes) {
+		this.icdCodes = icdCodes;
+	}
+
+	@JsonProperty("drugList")
+	public List<DrugList> getDrugList() {
+		return drugList;
+	}
+
+	@JsonProperty("drugList")
+	public void setDrugList(List<DrugList> drugList) {
+		this.drugList = drugList;
+	}
+
+
+}

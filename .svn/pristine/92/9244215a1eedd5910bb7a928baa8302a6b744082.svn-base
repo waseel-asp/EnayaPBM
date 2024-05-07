@@ -1,0 +1,120 @@
+package com.enayapbm.medimpact.delivery;
+
+import java.util.logging.Level;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+
+import com.enayapbm.medimpact.model.MedImpactRequest;
+import com.enayapbm.medimpact.model.MedImpactResponse;
+import com.enayapbm.medimpact.model.ProjectLogger;
+
+@RequestScoped
+public class MedimpactRestClientHandler {
+	
+	private static final int READ_TIMEOUT = 60000;
+	private static final int CONNECTION_TIMEOUT = 60000;
+	private String url;
+	private String username;
+	private String password;
+	private int numberOfRetries;
+	private int connectTimeout;
+	private int readTimeout;
+	
+	public void prepareHandler(String url, String username, String password, int numberOfRetries) {
+		this.url = url;
+		this.username = username;
+		this.password = password;
+		this.numberOfRetries = numberOfRetries;
+		this.connectTimeout = CONNECTION_TIMEOUT;
+		this.readTimeout = READ_TIMEOUT;
+	}
+
+	public void prepareHandler(String url, String username, String password, int numberOfRetries, int connectionTimeout,
+			int readTimeout) {
+		this.url = url;
+		this.username = username;
+		this.password = password;
+		this.numberOfRetries = numberOfRetries;
+		this.connectTimeout = connectionTimeout;
+		this.readTimeout = readTimeout;
+	}
+
+	public MedImpactResponse doPostForNewRequest(MedImpactRequest request) {
+		MedImpactResponse response = null;
+		try {
+			WebTarget resource = initConnection();
+			response = resource.request(MediaType.APPLICATION_JSON).post(Entity.json(request), MedImpactResponse.class);
+
+//		if (httpResponse.getStatus() != 200) {
+//			String httpDescriptionForError = httpResponse.getHeaders().getFirst("response-description");
+//			return new MedImpactResponse(httpResponse.getStatus(), httpDescriptionForError);
+//		}
+
+//		String responseReceived = httpResponse.getEntity(String.class);
+//
+//		response = new Gson().fromJson(responseReceived, MedImpactResponse.class);
+//		response.setHttpStatusCode(200);
+		} catch (Exception e) {
+			ProjectLogger.logBasic("Pbm connection failed", Level.SEVERE, e);
+		}
+		return response;
+	}
+
+	public MedImpactResponse doPutForFollowUpRequest(MedImpactRequest request) {
+		WebTarget resource = initConnection();
+//		ClientResponse httpResponse = resource.request(MediaType.APPLICATION_JSON).post(ClientResponse.class,
+//				new Gson().toJson(request));
+
+//		if (httpResponse.getStatus() != 200) {
+//			String httpDescriptionForError = httpResponse.getHeaders().getFirst("response-description");
+//			return new MedImpactResponse(httpResponse.getStatus(), httpDescriptionForError);
+//		}
+
+//		String responseReceived = httpResponse.getEntity(String.class);
+
+		MedImpactResponse response = resource.request(MediaType.APPLICATION_JSON).post(Entity.json(request),
+				MedImpactResponse.class);
+
+//		response.setHttpStatusCode(200);
+		return response;
+	}
+
+//	public MedImpactCancellationResponse cancellation(MedImpactCancellationRequest request) {
+//		WebTarget resource = initConnection();
+////		ClientResponse httpResponse = resource.request(MediaType.APPLICATION_JSON).post(ClientResponse.class,
+////				new Gson().toJson(request));
+//
+////		if (httpResponse.getStatus() != 200) {
+////			String httpDescriptionForError = httpResponse.getHeaders().getFirst("response-description");
+////			return new MedImpactCancellationResponse(httpResponse.getStatus(), httpDescriptionForError);
+////		}
+//
+////		String responseReceived = httpResponse.getEntity(String.class);
+//
+//		MedImpactCancellationResponse response = resource.request(MediaType.APPLICATION_JSON).post(Entity.json(request),
+//				MedImpactCancellationResponse.class);
+//
+////		response.setHttpStatusCode(200);
+//		return response;
+//	}
+//
+	private WebTarget initConnection() {
+		Client httpClient = ClientBuilder.newClient();
+
+		httpClient.property("jersey.config.client.connectTimeout", connectTimeout);
+		httpClient.property("jersey.config.client.readTimeout", readTimeout);
+
+		WebTarget resource = httpClient.target(url);
+//		restClient.addFilter(new HTTPBasicAuthFilter(username, password));
+
+		// Set Timeouts.
+
+		return resource;
+	}
+	
+}

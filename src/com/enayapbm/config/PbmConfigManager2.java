@@ -1,0 +1,105 @@
+package com.enayapbm.config;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+@ApplicationScoped
+public class PbmConfigManager2 {
+
+	// For Medimpact integration.
+	private static final String MEDIMPACT_AUTHENTICATION_USER = "Medimpact_Authentication_User";
+	private static final String MEDIMPACT_AUTHENTICATION_PASSWORD = "Medimpact_Authentication_Password";
+	private static final String MEDIMPACT_API_URL_NEW_REQUEST = "Medimpact_Api_Url";
+	private static final String MEDIMPACT_API_URL_CANCELLATION_REQUEST = "Medimpact_Api_Cancellation_Url";
+	private static final String ENCRYPT_MEMBERID = "EncryptMemberId";
+
+	private static final String WASEEL_PBM_SERVICE_API_URL_NEW_REQUEST = "Waseel_Pbm_Service_Api_New_Url";
+	private static final String WASEEL_PBM_SERVICE_API_URL_FOLLOWUP_REQUEST = "Waseel_Pbm_Service_Api_Followup_Url";
+	private static final String WASEEL_PBM_SERVICE_API_URL_CANCELLATION_REQUEST = "Waseel_Pbm_Service_Api_Cancellation_Url";
+
+	private static final String TIMEOUT = "TIMEOUT";
+	private static final String NO_OF_RETRIES = "NO_OF_RETRIES";
+
+	// private Map<String, String> pbmConfigs;
+
+	private Properties pbmConfigs;
+
+	// @Inject
+	// private PbmconfigurationFacade pbmconfigurationFacade;
+
+	@PostConstruct
+	public void init() {
+		pbmConfigs = new Properties();
+		String fileName = "pbmconfig.properties";
+		InputStream input;
+		input = getClass().getClassLoader().getResourceAsStream(fileName);
+		try {
+			if (input != null) {
+				pbmConfigs.load(input);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// public void reInitialization(@Observes ClearCacheEvent event) {
+	// init();
+	// }
+
+	public String getAuthentication_Username_Medimpact() {
+		return pbmConfigs.getProperty(MEDIMPACT_AUTHENTICATION_USER);
+	}
+
+	public boolean isEncryptMemberId() {
+		if (pbmConfigs.getProperty(ENCRYPT_MEMBERID) != null && !pbmConfigs.getProperty(ENCRYPT_MEMBERID).equals("0")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public String getAuthentication_Password_Medimpact() {
+		return pbmConfigs.getProperty(MEDIMPACT_AUTHENTICATION_PASSWORD);
+	}
+
+	public String getApiUrl_New_Request_MedImpact() {
+		return pbmConfigs.getProperty(MEDIMPACT_API_URL_NEW_REQUEST);
+	}
+
+	public String getApiUrl_Cancellation_Request_MedImpact() {
+		return pbmConfigs.getProperty(MEDIMPACT_API_URL_CANCELLATION_REQUEST);
+	}
+
+	public String getWaseelPbmServiceApiUrlNewRequest() {
+		return pbmConfigs.getProperty(MEDIMPACT_API_URL_NEW_REQUEST);
+	}
+
+	public String getWaseelPbmServiceApiUrlFollowupRequest() {
+		return pbmConfigs.getProperty(WASEEL_PBM_SERVICE_API_URL_FOLLOWUP_REQUEST);
+	}
+
+	public String getWaseelPbmServiceApiUrlCancellationRequest() {
+		return pbmConfigs.getProperty(WASEEL_PBM_SERVICE_API_URL_CANCELLATION_REQUEST);
+	}
+
+	public String getTimeout() {
+		return pbmConfigs.getProperty(TIMEOUT);
+	}
+
+	public String getNoOfRetries() {
+		return pbmConfigs.getProperty(NO_OF_RETRIES);
+	}
+
+	// public String getNoOfRetries() {
+	// return pbmConfigs.get(NO_OF_RETRIES);
+	// }
+}

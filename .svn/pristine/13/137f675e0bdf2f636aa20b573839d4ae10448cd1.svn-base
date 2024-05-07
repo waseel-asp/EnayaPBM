@@ -1,0 +1,156 @@
+package com.enayapbm.business;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.enayapbm.medimpact.model.Error;
+import com.enayapbm.medimpact.model.MedImpactRequest;
+import com.enayapbm.medimpact.model.MedImpactResponse;
+import com.enayapbm.medimpact.model.Result;
+
+public class XLSXPbmWriter{
+
+	/*public static void main(String[] args) {
+		try {
+			FileOutputStream fileOut = new FileOutputStream("C:\\Users\\Mohammed.Aleemuddin\\Desktop\\EnayaPBMTestFiles\\poi-test.xlsx");
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			HSSFSheet worksheet = workbook.createSheet("EnayaPbmResponse");
+
+			// index from 0,0... cell A1 is cell(0,0)
+			HSSFRow row1 = worksheet.createRow((short) 0);
+
+			HSSFCell cellA1 = row1.createCell((short) 0);
+			cellA1.setCellValue("Hello");
+			HSSFCellStyle cellStyle = workbook.createCellStyle();
+			//cellStyle.setFillForegroundColor(HSSFColor.GOLD.index);
+			//cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+			cellA1.setCellStyle(cellStyle);
+
+			HSSFCell cellB1 = row1.createCell((short) 1);
+			cellB1.setCellValue("Goodbye");
+			cellStyle = workbook.createCellStyle();
+			//cellStyle.setFillForegroundColor(HSSFColor.LIGHT_CORNFLOWER_BLUE.index);
+		//	cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+			cellB1.setCellStyle(cellStyle);
+
+			HSSFCell cellC1 = row1.createCell((short) 2);
+			cellC1.setCellValue(true);
+
+			HSSFCell cellD1 = row1.createCell((short) 3);
+			cellD1.setCellValue(new Date());
+			cellStyle = workbook.createCellStyle();
+			cellStyle.setDataFormat(HSSFDataFormat
+					.getBuiltinFormat("m/d/yy h:mm"));
+			cellD1.setCellStyle(cellStyle);
+
+			workbook.write(fileOut);
+			fileOut.flush();
+			fileOut.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+ }*/
+	 public  void WriteToXSLSFile(List<EnayaPbmData> requestList, List<MedImpactResponse> responseList) 
+	    {
+	        //Blank workbook
+	        XSSFWorkbook workbook = new XSSFWorkbook(); 
+	         
+	        //Create a blank sheet
+	        XSSFSheet sheet = workbook.createSheet("EnayaPBMResponseData");
+	        
+	        Map<String, List<EnayaPbmData>> requestMap = requestList.stream()
+					.collect(Collectors.groupingBy(EnayaPbmData::getRequestId));
+	        Map<String, List<MedImpactResponse>> responseMap = responseList.stream()
+					.collect(Collectors.groupingBy(MedImpactResponse::getRequestId));
+
+	       
+	        
+	        Set<String> keys = responseMap.keySet();
+	        
+	        int rownum = 0;
+	        for (String key : keys)
+	        {
+	        	List<MedImpactResponse> value = responseMap.get(key);
+	        	List<EnayaPbmData> reqValue = requestMap.get(key);
+	        	Row row = sheet.createRow(rownum++);
+	        	for(EnayaPbmData req:reqValue) {
+	        		org.apache.poi.ss.usermodel.Cell cell;
+	        		
+	        		row.createCell(0).setCellValue(req.getRequestId());
+	        		row.createCell(1).setCellValue(req.getPayerId());
+	        		row.createCell(2).setCellValue(req.getPrescriberId());
+	        		row.createCell(3).setCellValue(req.getPolicyNo());
+	        		row.createCell(4).setCellValue(req.getMemberNo());
+	        		row.createCell(5).setCellValue(req.getMemberId());
+	        		row.createCell(6).setCellValue(req.getGender().name());
+	        		row.createCell(7).setCellValue(req.getProviderId());
+	        		row.createCell(8).setCellValue(req.getProviderName());
+	        		row.createCell(9).setCellValue(req.getApprovalReceivedDate());
+	        		row.createCell(10).setCellValue(req.getDateOfService());
+	        		row.createCell(11).setCellValue(req.getDateOfBirth());
+	        		row.createCell(12).setCellValue(req.getDiagnosisCode());
+	        		row.createCell(13).setCellValue(req.getDiagnosisDesc());
+	        		row.createCell(14).setCellValue(req.getSfdaCode());
+	        		row.createCell(15).setCellValue(req.getDispensedQuantity());
+	        		row.createCell(16).setCellValue(req.getAmount());
+	        		row.createCell(17).setCellValue(req.getDaysOfSupply());
+	        		
+	        	}
+	           
+	           
+	            for (MedImpactResponse res : value)
+	            {
+	            	// Row row = sheet.createRow(rownum++);
+	            	org.apache.poi.ss.usermodel.Cell cell;
+	            	
+	            	//row.createCell(0).setCellValue(res.getRequestId());
+	            	//row.createCell(1).setCellValue(value);
+	            	//row.createCell(2).
+	            	row.createCell(18).setCellValue(res.getStatus());
+	            	//row.createCell(2).setCellValue(res.getErrors().toArray());
+	            	for(Result result : res.getResults()) {
+	            			            	
+	            	row.createCell(19).setCellValue(result.getNdcDrugCode());
+	            	row.createCell(20).setCellValue(result.getDispensedQuantity());
+	            	row.createCell(21).setCellValue(result.getAmount());
+	            	row.createCell(22).setCellValue(result.getDaysOfSupply());
+	            	row.createCell(23).setCellValue(result.getStatus());
+	            	int j=24;
+	            	for(Error error:result.getErrors()) {
+	            	row.createCell(j).setCellValue(error.getDescription());
+	            	row.createCell(j+1).setCellValue(error.getCode());
+	            	j++;
+	            	}
+	            	
+	            	}
+	               
+	            } 
+	        }
+	        try
+	        {
+	            //Write the workbook in file system
+	            FileOutputStream out = new FileOutputStream(new File("C:\\Users\\Mohammed.Aleemuddin\\Desktop\\EnayaPBMTestFiles\\PBMEnayaResponce.xlsx"));
+	            workbook.write(out);
+	            out.close();
+	            System.out.println("PBMEnayaResponce.xlsx written successfully on disk.");
+	        } 
+	        catch (Exception e) 
+	        {
+	            e.printStackTrace();
+	        }
+	    }
+
+	
+	
+	
+}

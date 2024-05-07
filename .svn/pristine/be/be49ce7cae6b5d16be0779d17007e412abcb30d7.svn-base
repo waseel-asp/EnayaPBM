@@ -1,0 +1,173 @@
+package com.enayapbm.business;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.enayapbm.medimpact.model.Error;
+import com.enayapbm.medimpact.model.MedImpactResponse;
+import com.enayapbm.medimpact.model.Result;
+
+public class XLSXPbmWriter {
+
+	public void WriteToXSLSFile(List<EnayaPbmData> requestList, List<MedImpactResponse> responseList) {
+		// Blank workbook
+		XSSFWorkbook workbook = new XSSFWorkbook();
+
+		// Create a blank sheet
+		XSSFSheet sheet = workbook.createSheet("EnayaPBMResponseData");
+
+		CellStyle cellStyle = workbook.createCellStyle();
+		CreationHelper createHelper = workbook.getCreationHelper();
+		short dateFormat = createHelper.createDataFormat().getFormat("MM-dd-yyyy");
+		cellStyle.setDataFormat(dateFormat);
+
+		CellStyle cellHeading = workbook.createCellStyle();
+		Font font = workbook.createFont();
+		font.setBold(true);
+		cellHeading.setFont(font);
+
+		String headings[] = { "RequestId", "PayerId", "PhysicianId", "PolicyNo", "MemberNo", "MemberID",
+				"Member Gender", "Provider Id", "ProviderName", "ApprovalReceivedDate", "ServiceDate", "Date of Birth",
+				"ICD10_CODE", "ICD_DISEASE_DESCRIPTION", "SFDA Code", "Quantity", "Amount", "DaysofSupply", "Status Code","Error Description","Status",
+				"Error Desc", "Error Code" };
+//Generating Headings
+		Row headingRow = sheet.createRow(0);
+		int h = 0;
+		for (String heading : headings) {
+			headingRow.createCell(h).setCellStyle(cellHeading);
+			headingRow.getCell(h).setCellValue(heading);
+			h++;
+		}
+
+		Map<String, List<EnayaPbmData>> requestMap = requestList.stream()
+				.collect(Collectors.groupingBy(EnayaPbmData::getRequestId));
+		Map<String, List<MedImpactResponse>> responseMap = responseList.stream()
+				.collect(Collectors.groupingBy(MedImpactResponse::getRequestId));
+
+		Set<String> keys = responseMap.keySet();
+
+		int rownum = 1;
+		for (String key : keys) {
+			List<MedImpactResponse> value = responseMap.get(key);
+			List<EnayaPbmData> reqValue = requestMap.get(key);
+
+			// for (EnayaPbmData req : reqValue) {
+			for (int k = 0; k < reqValue.size(); k++) {
+				Row row = sheet.createRow(rownum++);
+				EnayaPbmData req = new EnayaPbmData();
+				req = reqValue.get(k);
+				row.createCell(0).setCellValue(req.getRequestId());
+				row.createCell(1).setCellValue(req.getPayerId());
+				row.createCell(2).setCellValue(req.getPrescriberId());
+				row.createCell(3).setCellValue(req.getPolicyNo());
+				row.createCell(4).setCellValue(req.getMemberNo());
+				row.createCell(5).setCellValue(req.getMemberId());
+				row.createCell(6).setCellValue(req.getGender().name());
+				row.createCell(7).setCellValue(req.getProviderId());
+				row.createCell(8).setCellValue(req.getProviderName());
+				row.createCell(9).setCellStyle(cellStyle);
+				row.getCell(9).setCellValue(req.getApprovalReceivedDate());
+				row.createCell(10).setCellStyle(cellStyle);
+				row.getCell(10).setCellValue(req.getDateOfService());
+				row.createCell(11).setCellStyle(cellStyle);
+				row.getCell(11).setCellValue(req.getDateOfBirth());
+				row.createCell(12).setCellValue(req.getDiagnosisCode());
+				row.createCell(13).setCellValue(req.getDiagnosisDesc());
+				row.createCell(14).setCellValue(req.getSfdaCode());
+				row.createCell(15).setCellValue(req.getDispensedQuantity());
+				row.createCell(16).setCellValue(req.getAmount());
+				row.createCell(17).setCellValue(req.getDaysOfSupply());
+
+				MedImpactResponse res = value.get(0);
+				row.createCell(18).setCellValue(res.getStatus());
+				row.createCell(19).setCellValue(res.getHttpStatusDescription());
+				Result result = new Result();
+				
+				if (null != res.getResults() && !res.getResults().isEmpty()) {
+					System.out.println("Result List :=====>"+res.getResults());
+					for (Result rslt : res.getResults()) {
+						System.out.println("Result :===???"+rslt);
+						if (rslt.getNdcDrugCode()!= null && rslt.getNdcDrugCode().equals(req.getSfdaCode()))
+							result = rslt;
+					}
+					/*
+					 * row.createCell(19).setCellValue(result.getNdcDrugCode());
+					 * row.createCell(20).setCellValue(result.getDispensedQuantity());
+					 * row.createCell(21).setCellValue(result.getAmount());
+					 * row.createCell(22).setCellValue(result.getDaysOfSupply());
+					 */
+					row.createCell(20).setCellValue(result.getStatus());
+					int j = 21;
+					if(result != null && null != result.getErrors() && !result.getErrors().isEmpty()) {
+					for (Error error : result.getErrors()) {
+						row.createCell(j).setCellValue(error.getDescription());
+						row.createCell(j + 1).setCellValue(error.getCode());
+						j++;
+					}
+					}
+				}
+
+			}
+
+			// }
+
+			/*
+			 * for (MedImpactResponse res : value) { // Row row = sheet.createRow(rownum++);
+			 * org.apache.poi.ss.usermodel.Cell cell;
+			 * 
+			 * // row.createCell(0).setCellValue(res.getRequestId()); //
+			 * row.createCell(1).setCellValue(value); // row.createCell(2).
+			 * row.createCell(18).setCellValue(res.getStatus()); //
+			 * row.createCell(2).setCellValue(res.getErrors().toArray()); for (Result result
+			 * : res.getResults()) {
+			 * 
+			 * row.createCell(19).setCellValue(result.getNdcDrugCode());
+			 * row.createCell(20).setCellValue(result.getDispensedQuantity());
+			 * row.createCell(21).setCellValue(result.getAmount());
+			 * row.createCell(22).setCellValue(result.getDaysOfSupply());
+			 * row.createCell(23).setCellValue(result.getStatus()); int j = 24; for (Error
+			 * error : result.getErrors()) {
+			 * row.createCell(j).setCellValue(error.getDescription()); row.createCell(j +
+			 * 1).setCellValue(error.getCode()); j++; }
+			 * 
+			 * }
+			 * 
+			 * }
+			 */
+		}
+		try {
+			// Write the workbook in file system
+			FileOutputStream out = new FileOutputStream(
+					new File("C:\\Users\\Mohammed.Aleemuddin\\Desktop\\EnayaPBMTestFiles\\PBMEnayaResponce.xlsx"));
+			workbook.write(out);
+			out.close();
+			System.out.println("PBMEnayaResponce.xlsx written successfully on disk.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Result getStatusAndDesc(MedImpactResponse response, String ndcDrugCode) {
+		List<Result> results = response.getResults();
+		for (Result result : results) {
+			if (result.equals(ndcDrugCode)) {
+				return result;
+			}
+
+		}
+		return null;
+
+	}
+
+}
