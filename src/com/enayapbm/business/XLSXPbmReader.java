@@ -56,14 +56,14 @@ public class XLSXPbmReader implements FileReader<EnayaPbmData> {
          EnayaPbmData enayaPbmData = new EnayaPbmData();
          enayaPbmData.setRequestId(this.dataformatter.formatCellValue(row.getCell(0)));
          enayaPbmData.setInvoiceNumber(this.dataformatter.formatCellValue(row.getCell(1)));
-         enayaPbmData.setPayerId("102_CLAIM");
+         enayaPbmData.setPayerId("300");
          enayaPbmData.setPrescriberId(this.dataformatter.formatCellValue(row.getCell(3)));
          //enayaPbmData.setPrescriberId("104");
          enayaPbmData.setPhysicianName(this.dataformatter.formatCellValue(row.getCell(4)));
          enayaPbmData.setMemberId(this.dataformatter.formatCellValue(row.getCell(5)));
          enayaPbmData.setGender(this.checkGender(this.dataformatter.formatCellValue(row.getCell(6))));
-         //enayaPbmData.setProviderId(this.dataformatter.formatCellValue(row.getCell(7)));
-         enayaPbmData.setProviderId("104");
+         enayaPbmData.setProviderId(this.dataformatter.formatCellValue(row.getCell(7)));
+         //enayaPbmData.setProviderId("104");
          enayaPbmData.setDateOfService(this.dateFormating(this.dataformatter.formatCellValue(row.getCell(8))));
          enayaPbmData.setDateOfBirth(this.dateFormating(this.dataformatter.formatCellValue(row.getCell(9))));
          enayaPbmData.setDiagnosisCode(this.dataformatter.formatCellValue(row.getCell(10)));
@@ -94,7 +94,7 @@ public class XLSXPbmReader implements FileReader<EnayaPbmData> {
 
    public String dateFormating(String date) {
       SimpleDateFormat myFormat = new SimpleDateFormat("dd/MM/yyyy");
-      SimpleDateFormat fromUser = new SimpleDateFormat("MM/dd/yy");
+      SimpleDateFormat fromUser = new SimpleDateFormat("dd/MM/yyyy");
 
       try {
          String reformattedStr = myFormat.format(fromUser.parse(date));

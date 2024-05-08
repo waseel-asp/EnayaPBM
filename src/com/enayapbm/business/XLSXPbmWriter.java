@@ -59,8 +59,8 @@ public class XLSXPbmWriter {
                   try {
                      resFileName = "PBMResponce" + fileName;
                      System.out.println("File name on disk --> " + resFileName);
-                     //FileOutputStream out = new FileOutputStream(new File("/home/mohammed.aleem/PBMToolResponse/" + resFileName));
-                     FileOutputStream out = new FileOutputStream(new File("D://" + resFileName));
+                     FileOutputStream out = new FileOutputStream(new File("/home/mohammed.aleem/MedGulfRes/" + resFileName));
+//                   FileOutputStream out = new FileOutputStream(new File("D://" + resFileName));
                      workbook.write(out);
                      out.close();
                      System.out.println(resFileName + "written successfully on disk.");

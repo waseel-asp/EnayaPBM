@@ -10,8 +10,8 @@ import javax.persistence.Table;
 /**
  * PbmconfigPayerToProvider entity. @author MyEclipse Persistence Tools
  */
-@Entity
-@Table(name = "PBMConfigPayerToProvider", schema = "HIRA")
+//@Entity
+//@Table(name = "PBMConfigPayerToProvider", schema = "HIRA")
 
 public class PbmconfigPayerToProvider implements java.io.Serializable {
 

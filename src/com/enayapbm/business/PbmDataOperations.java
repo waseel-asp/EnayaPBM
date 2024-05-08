@@ -166,7 +166,7 @@ public class PbmDataOperations {
 				.collect(Collectors.groupingBy(EnayaPbmData::getRequestId));
 
 		groupByRequestIdMap.forEach((key, value) -> {
-			System.out.println("Key : " + key + " Value : " + value);
+			//System.out.println("Key : " + key + " Value : " + value);
 		});
 
 		System.out.println(midImpactRequestList);
@@ -196,11 +196,15 @@ public class PbmDataOperations {
 						if(enayaPbmData.getDiagnosisCode().contains(",")) {
 							String[] diags = enayaPbmData.getDiagnosisCode().trim().split(",");
 							for(String diag: diags) {
-								icdCodes.add(diag.trim());
+								if (!icdCodes.contains(diag.trim())) {
+									icdCodes.add(diag.trim());
+								}
 							}
 						}
 						else {
-							icdCodes.add(enayaPbmData.getDiagnosisCode().trim());
+							if (!icdCodes.contains(enayaPbmData.getDiagnosisCode().trim())) {
+								icdCodes.add(enayaPbmData.getDiagnosisCode().trim());
+							}
 						}
 						
 					}
@@ -217,11 +221,15 @@ public class PbmDataOperations {
 							if(enayaPbmData.getDiagnosisCode().contains(",")) {
 								String[] diags = enayaPbmData.getDiagnosisCode().trim().split(",");
 								for(String diag: diags) {
-									icdCodes.add(diag.trim());
+									if (!icdCodes.contains(diag.trim())) {
+										icdCodes.add(diag.trim());
+									}
 								}
 							}
 							else {
-								icdCodes.add(enayaPbmData.getDiagnosisCode().trim());
+								if (!icdCodes.contains(enayaPbmData.getDiagnosisCode().trim())) {
+									icdCodes.add(enayaPbmData.getDiagnosisCode().trim());
+								}
 							}
 						}
 					}

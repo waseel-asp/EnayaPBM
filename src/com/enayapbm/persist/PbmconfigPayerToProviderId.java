@@ -6,7 +6,7 @@ import javax.persistence.Embeddable;
 /**
  * PbmconfigPayerToProviderId entity. @author MyEclipse Persistence Tools
  */
-@Embeddable
+//@Embeddable
 
 public class PbmconfigPayerToProviderId implements java.io.Serializable {
 

@@ -6,7 +6,7 @@
 	version="2.0">
 	<persistence-unit name="EnayaPBM"
 		transaction-type="JTA">
-		<jta-data-source>java:jboss/datasources/hiraDSN</jta-data-source>
+		<jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
 		<shared-cache-mode>NONE</shared-cache-mode>
 		 <properties>
 				<property name="hibernate.physical_naming_strategy" value="com.enayapbm.persist.PhysicalNamingStrategy" />
