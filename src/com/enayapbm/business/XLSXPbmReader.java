@@ -56,7 +56,8 @@ public class XLSXPbmReader implements FileReader<EnayaPbmData> {
          EnayaPbmData enayaPbmData = new EnayaPbmData();
          enayaPbmData.setRequestId(this.dataformatter.formatCellValue(row.getCell(0)));
          enayaPbmData.setInvoiceNumber(this.dataformatter.formatCellValue(row.getCell(1)));
-         enayaPbmData.setPayerId("300");
+//         enayaPbmData.setPayerId("333");
+         enayaPbmData.setPayerId(this.dataformatter.formatCellValue(row.getCell(2)));
          enayaPbmData.setPrescriberId(this.dataformatter.formatCellValue(row.getCell(3)));
          //enayaPbmData.setPrescriberId("104");
          enayaPbmData.setPhysicianName(this.dataformatter.formatCellValue(row.getCell(4)));

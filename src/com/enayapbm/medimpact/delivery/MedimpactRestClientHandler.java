@@ -57,6 +57,7 @@ public class MedimpactRestClientHandler {
 	public void prepareHandler(String url, String username, String password, int numberOfRetries, int connectionTimeout,
 			int readTimeout) {
 		this.url = url;
+		System.out.println("URL =====>"+url);
 		this.setUsername(username);
 		this.password = password;
 		this.numberOfRetries = numberOfRetries;
